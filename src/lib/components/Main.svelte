@@ -3,8 +3,8 @@
 </script>
 
 <main class="viewport">
-	<Frame />
-	<Frame />
+	<Frame screen="left" />
+	<Frame screen="right" />
 </main>
 
 <style lang="scss">

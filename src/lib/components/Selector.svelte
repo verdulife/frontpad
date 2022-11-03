@@ -1,27 +1,16 @@
 <script>
-	import { desktopList, tabletList, mobileList } from '$lib/devices';
+	import { deviceList } from '$lib/devices';
+	import { frameSelection } from '$lib/stores';
 	import RotateIcon from '$lib/icons/Rotate.svelte';
+
+	export let screen;
 </script>
 
 <nav class="row jbetween acenter">
-	<select class="grow">
-		<optgroup label="Desktop">
-			{#each desktopList as device, i}
-				<option value={i}>{device.name} ({device.size.width}x{device.size.height})</option>
-			{/each}
-		</optgroup>
-
-		<optgroup label="Tablet">
-			{#each tabletList as device, i}
-				<option value={i}>{device.name} ({device.size.width}x{device.size.height})</option>
-			{/each}
-		</optgroup>
-
-		<optgroup label="Mobile">
-			{#each mobileList as device, i}
-				<option value={i}>{device.name} ({device.size.width}x{device.size.height})</option>
-			{/each}
-		</optgroup>
+	<select class="grow" bind:value={$frameSelection[screen]}>
+		{#each deviceList as device, i}
+			<option value={i}>{device.name} ({device.size.width}x{device.size.height})</option>
+		{/each}
 	</select>
 
 	<button class="col fcenter">
