@@ -1,5 +1,6 @@
 <script>
 	import { deviceList } from '$lib/devices';
+	import { rotate } from '$lib/actions';
 	import { frameSelection } from '$lib/stores';
 	import RotateIcon from '$lib/icons/Rotate.svelte';
 
@@ -13,7 +14,7 @@
 		{/each}
 	</select>
 
-	<button class="col fcenter">
+	<button class="col fcenter" on:click={() => rotate(screen)}>
 		<RotateIcon width="16" height="16" fill="#aaa" />
 	</button>
 </nav>
@@ -32,10 +33,10 @@
 		select {
 			cursor: pointer;
 			color: var(--color-sec);
+			font-family: var(--font-text);
 			font-weight: bold;
 			padding: 10px 40px 10px 20px;
 
-			optgroup,
 			option {
 				background: #000;
 				color: var(--color-sec);

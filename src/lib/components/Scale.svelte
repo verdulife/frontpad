@@ -1,25 +1,27 @@
 <script>
-	import { desktopList } from '$lib/devices';
+	import { scaleFactor } from '$lib/stores';
+	import ExpandIcon from '$lib/icons/Expand.svelte';
+
+	export let screen;
+
+	$: percentage = $scaleFactor[screen] * 100;
+	$: rounded = percentage > 100 ? 100 : percentage.toFixed(2);
 </script>
 
-<div class="scale row jbetween acenter">
-	<p class="grow nowrap">Scale {desktopList[0].name}%</p>
+<nav class="row jbetween acenter">
+	<p>Scale {rounded}%</p>
 
-	<button
-		class="col fcenter"
-		title="Window view with no scaling"
-	>
-		<img src="/expand.svg" alt="Expand" />
+	<button class="col fcenter" title="Pop up view">
+		<ExpandIcon width="12" height="12" fill="#aaa" />
 	</button>
-</div>
+</nav>
 
 <style lang="scss">
-	.scale {
+	nav {
 		position: absolute;
-		inset: auto auto 0 auto;
-		width: 150px;
+		bottom: 0;
 		height: 40px;
-		background: var(--color-bg);
+		background: var(--color-pri);
 		border: 1px solid var(--color-border);
 		border-bottom: none;
 		border-radius: 10px 10px 0 0;
@@ -28,40 +30,15 @@
 		p {
 			color: var(--color-sec);
 			font-weight: bold;
-			font-size: 14px;
-			padding: 0 14px;
-			pointer-events: none;
+			font-size: 12px;
+			padding: 10px 40px 10px 20px;
 		}
 
 		button {
-			cursor: pointer;
 			width: 40px;
 			height: 100%;
 			box-shadow: -1px 0 0 var(--color-border);
 			padding: 0;
-
-			&:hover {
-				transform: none;
-
-				img {
-					transform: scale(0.95);
-				}
-			}
-
-			img {
-				width: 15px;
-				transition: 200ms;
-			}
-		}
-
-		@media (max-width: 940px) {
-			p {
-				text-align: center;
-			}
-
-			button {
-				display: none;
-			}
 		}
 	}
 </style>

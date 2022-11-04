@@ -4,11 +4,16 @@
 
 <main class="viewport">
 	<Frame screen="left" />
+	<ydiv />
 	<Frame screen="right" />
 </main>
 
 <style lang="scss">
 	main {
 		background: var(--color-bg);
+	}
+
+	ydiv {
+		background: #000;
 	}
 </style>
