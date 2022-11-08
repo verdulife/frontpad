@@ -4,7 +4,7 @@
 
 <select bind:value={$UserStore.layout}>
 	<option value="mobileFirst">Mobile first</option>
-	<option value="Equal">Equal</option>
+	<option value="equal">Equal</option>
 	<option value="desktopFirst">Desktop first</option>
 </select>
 

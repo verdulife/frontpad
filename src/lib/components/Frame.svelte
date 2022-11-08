@@ -1,57 +1,49 @@
 <script>
-	import { customURL, frameSelection, scaleFactor, rotateDevice } from '$lib/stores';
+	import { customURL, frameSelection, scaleFactor, rotateDevice, UserStore } from '$lib/stores';
 	import { deviceList } from '$lib/devices';
 	import Selector from '$lib/components/Selector.svelte';
 	import Scale from '$lib/components/Scale.svelte';
 
 	export let screen;
 
-	$: side = $frameSelection[screen];
-	$: size = deviceList[side].size;
+	const isPort = !isNaN(Number($customURL));
+
+	$: src = isPort ? `http://localhost:${$customURL}` : `http://${$customURL}`;
+	$: size = deviceList[$frameSelection[screen]].size;
 	$: width = $rotateDevice[screen] ? size.height : size.width;
 	$: height = $rotateDevice[screen] ? size.width : size.height;
-	$: title = deviceList[side].name;
+	$: title = deviceList[$frameSelection[screen]].name;
 
-	const isPort = !isNaN(Number($customURL));
-	$: src = isPort ? `http://localhost:${$customURL}` : `http://${$customURL}`;
-
-	$: leftSide = $frameSelection.left;
-	$: rightSide = $frameSelection.right;
-	$: leftSideWidth = deviceList[leftSide].size.width;
-	$: rightSideWidth = deviceList[rightSide].size.width;
-	$: bothBiger = false;
-	$: xRatio = xRatio < 1 ? xRatio : 1;
-	$: yRatio = yRatio < 1 ? yRatio : 1;
-	$: ratio = Math.min(xRatio, yRatio);
-
-	let windowWidth, containerWidth, containerHeight;
+	let xRatio, yRatio, ratio, containerWidth, containerHeight;
 
 	function scaleToFit() {
+		console.log("gets older section sizes", containerWidth, containerHeight);
 		const padding = 150;
-
-		console.log(windowWidth, containerWidth, containerHeight);
 
 		xRatio = (containerWidth - padding) / width;
 		yRatio = (containerHeight - padding) / height;
-
-		$scaleFactor[screen] = Math.min(xRatio, yRatio);
+		ratio = Math.min(xRatio, yRatio);
+		$scaleFactor[screen] = ratio;
 	}
 
-	$: if ($frameSelection) scaleToFit();
+	$: $frameSelection[screen] || $rotateDevice[screen] || $UserStore.layout, scaleToFit();
 </script>
 
-<svelte:window bind:innerWidth={windowWidth} on:resize={scaleToFit} />
+<svelte:window on:resize={scaleToFit} />
 
 <section
 	bind:offsetWidth={containerWidth}
 	bind:offsetHeight={containerHeight}
-	class="col fcenter grow yfill"
-	class:both-big={bothBiger}
+	id={screen}
+	class="col fcenter yfill"
+	class:mobilefirst-layout={$UserStore.layout === 'mobileFirst'}
+	class:desktopfirst-layout={$UserStore.layout === 'desktopFirst'}
+	class:equal-layout={$UserStore.layout === 'equal'}
 >
 	<Selector {screen} />
 
 	<div class="outer-frame col fcenter" {width} {height}>
-		<iframe {src} {width} {height} {title} style="transform: scale({ratio})" />
+		<iframe {src} {width} {height} {title} style="transform: scale({ratio})" on:load={scaleToFit} />
 	</div>
 
 	<Scale {screen} />
@@ -60,12 +52,26 @@
 <style lang="scss">
 	section {
 		position: relative;
-		max-width: 70%;
-		width: auto;
 		overflow: hidden;
 	}
 
-	.both-big {
-		max-width: 50%;
+	#left.mobilefirst-layout {
+		width: 30%;
+	}
+
+	#left.desktopfirst-layout {
+		width: 70%;
+	}
+
+	#right.mobilefirst-layout {
+		width: 70%;
+	}
+
+	#right.desktopfirst-layout {
+		width: 30%;
+	}
+
+	.equal-layout {
+		width: 50%;
 	}
 </style>

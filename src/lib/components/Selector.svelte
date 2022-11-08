@@ -1,10 +1,12 @@
 <script>
 	import { deviceList } from '$lib/devices';
 	import { rotate } from '$lib/actions';
-	import { frameSelection } from '$lib/stores';
+	import { frameSelection, UserStore } from '$lib/stores';
 	import RotateIcon from '$lib/icons/Rotate.svelte';
 
 	export let screen;
+
+	$frameSelection[screen] = $UserStore.defaultDevice[screen];
 </script>
 
 <nav class="row jbetween acenter">
