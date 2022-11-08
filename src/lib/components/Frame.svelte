@@ -1,5 +1,4 @@
 <script>
-	import { browser } from '$app/environment';
 	import { customURL, frameSelection, scaleFactor, rotateDevice } from '$lib/stores';
 	import { deviceList } from '$lib/devices';
 	import Selector from '$lib/components/Selector.svelte';
@@ -25,25 +24,30 @@
 	$: yRatio = yRatio < 1 ? yRatio : 1;
 	$: ratio = Math.min(xRatio, yRatio);
 
-	$: if (browser && $frameSelection) {
-		const wW = window.innerWidth;
-		const bothSidesBigerThanHalf = leftSideWidth > wW / 2.1 && rightSideWidth > wW / 2.1;
+	let windowWidth, containerWidth, containerHeight;
 
-		bothBiger = bothSidesBigerThanHalf;
+	function scaleToFit() {
+		const padding = 150;
 
-		setTimeout(() => {
-			const padding = 150;
-			const el = document.querySelector(`#${screen}`);
+		console.log(windowWidth, containerWidth, containerHeight);
 
-			xRatio = (el.clientWidth - padding) / width;
-			yRatio = (el.clientHeight - padding) / height;
+		xRatio = (containerWidth - padding) / width;
+		yRatio = (containerHeight - padding) / height;
 
-			$scaleFactor[screen] = Math.min(xRatio, yRatio);
-		});
+		$scaleFactor[screen] = Math.min(xRatio, yRatio);
 	}
+
+	$: if ($frameSelection) scaleToFit();
 </script>
 
-<section id={screen} class="col fcenter grow yfill" class:both-big={bothBiger}>
+<svelte:window bind:innerWidth={windowWidth} on:resize={scaleToFit} />
+
+<section
+	bind:offsetWidth={containerWidth}
+	bind:offsetHeight={containerHeight}
+	class="col fcenter grow yfill"
+	class:both-big={bothBiger}
+>
 	<Selector {screen} />
 
 	<div class="outer-frame col fcenter" {width} {height}>
@@ -58,13 +62,10 @@
 		position: relative;
 		max-width: 70%;
 		width: auto;
+		overflow: hidden;
 	}
 
 	.both-big {
 		max-width: 50%;
-	}
-
-	iframe {
-		background: #000;
 	}
 </style>

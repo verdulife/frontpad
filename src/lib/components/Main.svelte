@@ -1,11 +1,14 @@
 <script>
 	import Frame from '$lib/components/Frame.svelte';
+	import Layout from '$lib/components/Layout.svelte';
 </script>
 
-<main class="viewport">
+<main class="viewport jcenter">
 	<Frame screen="left" />
 	<ydiv />
 	<Frame screen="right" />
+
+	<Layout />
 </main>
 
 <style lang="scss">
