@@ -20,7 +20,6 @@ export const rotateDevice = writable({
 
 const defalutOptions = {
 	customURL: 'localhost:3000',
-	layout: 'mobileFirst',
 	defaultDevice: { left: 0, right: 0 },
 	defaultDeviceRotation: { left: 0, right: 0 }
 };

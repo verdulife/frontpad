@@ -7,6 +7,12 @@
 	export let screen;
 
 	$frameSelection[screen] = $UserStore.defaultDevice[screen];
+
+	function updateDefault() {
+		$UserStore.defaultDevice[screen] = $frameSelection[screen];
+	}
+
+	$: $frameSelection[screen], updateDefault();
 </script>
 
 <nav class="row jbetween acenter">

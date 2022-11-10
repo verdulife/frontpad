@@ -13,16 +13,28 @@
 	$: width = $rotateDevice[screen] ? size.height : size.width;
 	$: height = $rotateDevice[screen] ? size.width : size.height;
 	$: title = deviceList[$frameSelection[screen]].name;
+	$: equalScreens = false;
 
 	let xRatio, yRatio, ratio, containerWidth, containerHeight;
 
+	function mustBeBig() {
+		const selectionLeft = deviceList[$frameSelection.left];
+		const selectionRight = deviceList[$frameSelection.right];
+
+		equalScreens = selectionLeft.type === selectionRight.type;
+		equalScreens =
+			selectionLeft.type === ('desktop' || 'tablet') &&
+			selectionRight.type === ('desktop' || 'tablet');
+	}
+
 	function scaleToFit() {
-		console.log("gets older section sizes", containerWidth, containerHeight);
 		const padding = 150;
+
+		mustBeBig();
 
 		xRatio = (containerWidth - padding) / width;
 		yRatio = (containerHeight - padding) / height;
-		ratio = Math.min(xRatio, yRatio);
+		ratio = Math.min(xRatio, yRatio) > 1 ? 1 : Math.min(xRatio, yRatio);
 		$scaleFactor[screen] = ratio;
 	}
 
@@ -35,10 +47,8 @@
 	bind:offsetWidth={containerWidth}
 	bind:offsetHeight={containerHeight}
 	id={screen}
-	class="col fcenter yfill"
-	class:mobilefirst-layout={$UserStore.layout === 'mobileFirst'}
-	class:desktopfirst-layout={$UserStore.layout === 'desktopFirst'}
-	class:equal-layout={$UserStore.layout === 'equal'}
+	class="col fcenter grow yfill"
+	class:equal-screens={equalScreens}
 >
 	<Selector {screen} />
 
@@ -55,23 +65,7 @@
 		overflow: hidden;
 	}
 
-	#left.mobilefirst-layout {
-		width: 30%;
-	}
-
-	#left.desktopfirst-layout {
-		width: 70%;
-	}
-
-	#right.mobilefirst-layout {
-		width: 70%;
-	}
-
-	#right.desktopfirst-layout {
-		width: 30%;
-	}
-
-	.equal-layout {
+	.equal-screens {
 		width: 50%;
 	}
 </style>
