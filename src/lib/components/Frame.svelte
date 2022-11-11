@@ -13,42 +13,63 @@
 	$: width = $rotateDevice[screen] ? size.height : size.width;
 	$: height = $rotateDevice[screen] ? size.width : size.height;
 	$: title = deviceList[$frameSelection[screen]].name;
-	$: equalScreens = false;
+	$: smallScreen = false;
+	$: equalScreen = false;
 
-	let xRatio, yRatio, ratio, containerWidth, containerHeight;
+	let xRatio, yRatio, ratio, windowWidth, windowHeight;
 
-	function mustBeBig() {
-		const selectionLeft = deviceList[$frameSelection.left];
-		const selectionRight = deviceList[$frameSelection.right];
+	function calculateLayout() {
+		const leftSelection = deviceList[$frameSelection.left];
+		const rightSelection = deviceList[$frameSelection.right];
+		const screenSelection = deviceList[$frameSelection[screen]];
+		let smallLeft = false;
+		let smallRight = false;
 
-		equalScreens = selectionLeft.type === selectionRight.type;
-		equalScreens =
-			selectionLeft.type === ('desktop' || 'tablet') &&
-			selectionRight.type === ('desktop' || 'tablet');
+		if ($rotateDevice[screen] && screenSelection.type === 'mobile') smallScreen = false;
+		else if (screenSelection.type === 'mobile') smallScreen = true;
+		else smallScreen = false;
+
+		if ($rotateDevice.left) smallLeft = false;
+		else if (leftSelection.type === 'mobile') smallLeft = true;
+		else smallLeft = false;
+
+		if ($rotateDevice.right) smallRight = false;
+		else if (rightSelection.type === 'mobile') smallRight = true;
+		else smallRight = false;
+
+		equalScreen = smallLeft && smallRight;
+
+		//TODO CHECK NEXT CONDITIONAL
+		if (equalScreen) return windowWidth / 2;
+		else if (smallScreen) return windowWidth / 1.35;
+		else return windowWidth / 1.65;
 	}
 
 	function scaleToFit() {
 		const padding = 150;
+		const screenWidth = calculateLayout();
 
-		mustBeBig();
-
-		xRatio = (containerWidth - padding) / width;
-		yRatio = (containerHeight - padding) / height;
+		xRatio = (screenWidth - padding) / width;
+		yRatio = (windowHeight - padding) / height;
 		ratio = Math.min(xRatio, yRatio) > 1 ? 1 : Math.min(xRatio, yRatio);
 		$scaleFactor[screen] = ratio;
 	}
 
-	$: $frameSelection[screen] || $rotateDevice[screen] || $UserStore.layout, scaleToFit();
+	$: $frameSelection[screen], scaleToFit();
+	$: $rotateDevice[screen], scaleToFit();
 </script>
 
-<svelte:window on:resize={scaleToFit} />
+<svelte:window
+	on:resize={scaleToFit}
+	bind:innerWidth={windowWidth}
+	bind:innerHeight={windowHeight}
+/>
 
 <section
-	bind:offsetWidth={containerWidth}
-	bind:offsetHeight={containerHeight}
 	id={screen}
-	class="col fcenter grow yfill"
-	class:equal-screens={equalScreens}
+	class="col fcenter yfill"
+	class:small-screen={smallScreen}
+	class:equal-screen={equalScreen}
 >
 	<Selector {screen} />
 
@@ -62,10 +83,15 @@
 <style lang="scss">
 	section {
 		position: relative;
+		width: 65%;
 		overflow: hidden;
 	}
 
-	.equal-screens {
+	.small-screen {
+		width: 35%;
+	}
+
+	.equal-screen {
 		width: 50%;
 	}
 </style>
