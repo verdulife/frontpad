@@ -3,27 +3,25 @@
 	import { deviceList } from '$lib/devices';
 	import Selector from '$lib/components/Selector.svelte';
 	import Scale from '$lib/components/Scale.svelte';
+	import Browser from '$lib/components/Browser.svelte';
 
 	export let screen;
 
 	const isPort = !isNaN(Number($customURL));
 
 	$: src = isPort ? `http://localhost:${$customURL}` : `http://${$customURL}`;
-	$: size = deviceList[$frameSelection[screen]].size;
-	$: width = $rotateDevice[screen] ? size.height : size.width;
-	$: height = $rotateDevice[screen] ? size.width : size.height;
+	$: deviceSize = deviceList[$frameSelection[screen]].size;
+	$: deviceWidth = $rotateDevice[screen] ? deviceSize.height : deviceSize.width;
+	$: deviceHeight = $rotateDevice[screen] ? deviceSize.width : deviceSize.height;
 	$: title = deviceList[$frameSelection[screen]].name;
-	$: smallScreen = false;
-	$: equalScreen = false;
 
-	let xRatio, yRatio, ratio, windowWidth, windowHeight;
+	let smallScreen, equalScreen, screenWidth, screenHeight, xRatio, yRatio, ratio;
 
 	function calculateLayout() {
 		const leftSelection = deviceList[$frameSelection.left];
 		const rightSelection = deviceList[$frameSelection.right];
 		const screenSelection = deviceList[$frameSelection[screen]];
-		let smallLeft = false;
-		let smallRight = false;
+		let smallLeft, smallRight;
 
 		if ($rotateDevice[screen] && screenSelection.type === 'mobile') smallScreen = false;
 		else if (screenSelection.type === 'mobile') smallScreen = true;
@@ -38,43 +36,46 @@
 		else smallRight = false;
 
 		equalScreen = smallLeft && smallRight;
-
-		//TODO CHECK NEXT CONDITIONAL
-		if (equalScreen) return windowWidth / 2;
-		else if (smallScreen) return windowWidth / 1.35;
-		else return windowWidth / 1.65;
 	}
 
 	function scaleToFit() {
 		const padding = 150;
-		const screenWidth = calculateLayout();
 
-		xRatio = (screenWidth - padding) / width;
-		yRatio = (windowHeight - padding) / height;
-		ratio = Math.min(xRatio, yRatio) > 1 ? 1 : Math.min(xRatio, yRatio);
-		$scaleFactor[screen] = ratio;
+		calculateLayout();
+
+		setTimeout(() => {
+			xRatio = (screenWidth - padding) / deviceWidth;
+			yRatio = (screenHeight - padding) / deviceHeight;
+			ratio = Math.min(xRatio, yRatio) > 1 ? 1 : Math.min(xRatio, yRatio);
+			$scaleFactor[screen] = ratio;
+		});
 	}
 
 	$: $frameSelection[screen], scaleToFit();
 	$: $rotateDevice[screen], scaleToFit();
 </script>
 
-<svelte:window
-	on:resize={scaleToFit}
-	bind:innerWidth={windowWidth}
-	bind:innerHeight={windowHeight}
-/>
+<svelte:window on:resize={scaleToFit} />
 
 <section
-	id={screen}
+	bind:offsetWidth={screenWidth}
+	bind:offsetHeight={screenHeight}
 	class="col fcenter yfill"
 	class:small-screen={smallScreen}
 	class:equal-screen={equalScreen}
 >
 	<Selector {screen} />
 
-	<div class="outer-frame col fcenter" {width} {height}>
-		<iframe {src} {width} {height} {title} style="transform: scale({ratio})" on:load={scaleToFit} />
+	<div
+		class="outer-frame col fcenter"
+		style="min-width: {deviceWidth}px; min-height: {deviceHeight}px; transform: scale({ratio})"
+		on:load={scaleToFit}
+	>
+		{#if $UserStore.browserSimulation}
+			<Browser />
+		{/if}
+
+		<iframe class="fill" {src} {title} />
 	</div>
 
 	<Scale {screen} />
@@ -85,6 +86,16 @@
 		position: relative;
 		width: 65%;
 		overflow: hidden;
+	}
+
+	.outer-frame {
+		border: 1px solid #37373a;
+		border-radius: 8px;
+		box-shadow: 0 80px 80px -30px rgba(#000, 0.4);
+	}
+
+	iframe {
+		border-radius: 0 0 8px 8px;
 	}
 
 	.small-screen {

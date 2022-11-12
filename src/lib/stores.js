@@ -21,7 +21,8 @@ export const rotateDevice = writable({
 const defalutOptions = {
 	customURL: 'localhost:3000',
 	defaultDevice: { left: 0, right: 0 },
-	defaultDeviceRotation: { left: 0, right: 0 }
+	defaultDeviceRotation: { left: 0, right: 0 },
+	browserSimulation: false
 };
 
 export const UserStore = writable(

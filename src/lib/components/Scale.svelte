@@ -1,17 +1,21 @@
 <script>
-	import { scaleFactor } from '$lib/stores';
+	import { scaleFactor, UserStore } from '$lib/stores';
 	import ExpandIcon from '$lib/icons/Expand.svelte';
 
 	export let screen;
 
 	$: percentage = $scaleFactor[screen] * 100;
 	$: rounded = percentage > 100 ? 100 : percentage.toFixed(2);
+
+	function togBrowser() {
+		$UserStore.browserSimulation = !$UserStore.browserSimulation;
+	}
 </script>
 
 <nav class="row jbetween acenter">
-	<p>Scale {rounded}%</p>
+	<p>Scaled to {rounded}%</p>
 
-	<button class="col fcenter" title="Pop up view">
+	<button class="col fcenter" title="Pop up view" on:click={togBrowser}>
 		<ExpandIcon width="12" height="12" fill="#aaa" />
 	</button>
 </nav>
